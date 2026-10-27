@@ -34,15 +34,6 @@ export function buildElectricMotor(motor, opts = {}) {
     const a = i * step;
     const ph = i % 3;
     const mat = new THREE.MeshStandardMaterial({ color: 0xc8733b, metalness: 0.8, roughness: 0.35, emissive: 0x000000 });
-    const coil = mesh(new THREE.TorusGeometry(0.013, 0.006, 8, 16), mat, `Bobina fase ${'ABC'[ph]}`,
-      `Bobina de cobre de la fase ${'ABC'[ph]}. Brilla con la intensidad de su corriente (rojo A, verde B, azul C).`);
-    coil.scale.set(1, 1, len / 0.03);
-    coil.position.set(Math.cos(a) * (Ry + Rt) / 2, Math.sin(a) * (Ry + Rt) / 2, 0);
-    coil.rotation.z = a;
-    coil.rotation.y = Math.PI / 2;
-    const holder = new THREE.Group();
-    holder.add(coil);
-    root.add(holder);
     const end = mesh(new THREE.TorusGeometry(0.014, 0.005, 8, 14), mat);
     end.position.set(Math.cos(a) * (Ry + Rt) / 2, Math.sin(a) * (Ry + Rt) / 2, len / 2 + 0.006);
     end.rotation.z = a;
@@ -54,7 +45,6 @@ export function buildElectricMotor(motor, opts = {}) {
     part(bar, `Bobina fase ${'ABC'[ph]}`, `Bobina de cobre de la fase ${'ABC'[ph]} arrollada sobre el diente. Brilla según su corriente.`);
     root.add(bar);
     coils.push({ mat, ph });
-    holder.visible = false;
   }
   // rotor
   const rotor = new THREE.Group();
@@ -93,8 +83,8 @@ export function buildElectricMotor(motor, opts = {}) {
   // inversor y batería
   let inverter = null, battery = null, socBar = null;
   if (opts.withPower !== false) {
-    inverter = mesh(new THREE.BoxGeometry(0.16, 0.08, 0.14), mats.alu, 'Inversor', 'Convierte la corriente continua de la batería en trifásica de frecuencia variable mediante transistores IGBT/SiC conmutando a ~10 kHz.');
-    inverter.position.set(0, Ro + 0.09, 0);
+    inverter = mesh(new THREE.BoxGeometry(0.12, 0.05, 0.1), new THREE.MeshStandardMaterial({ color: 0x8c96a3, metalness: 0.6, roughness: 0.4, transparent: true, opacity: 0.55 }), 'Inversor', 'Convierte la corriente continua de la batería en trifásica de frecuencia variable mediante transistores IGBT/SiC conmutando a ~10 kHz.');
+    inverter.position.set(0, Ro + 0.07, -0.08);
     root.add(inverter);
     battery = mesh(new THREE.BoxGeometry(0.42, 0.06, 0.26), new THREE.MeshStandardMaterial({ color: 0x24324a, metalness: 0.4, roughness: 0.5, transparent: true, opacity: 0.6 }), 'Batería de iones de litio', `Pack de ${motor.p.vBat} V y ${motor.p.capacity} kWh. Su tensión baja con la carga y al descargarse.`);
     battery.position.set(0, -Ro - 0.12, 0);
@@ -105,7 +95,7 @@ export function buildElectricMotor(motor, opts = {}) {
     root.add(socBar);
     for (const [y0, y1, col] of [[Ro + 0.05, Ro + 0.012, 0xff5a5a], [-Ro - 0.09, -Ro - 0.012, 0xff9a3c]]) {
       const cable = new THREE.Mesh(new THREE.CylinderGeometry(0.006, 0.006, Math.abs(y0 - y1), 8), new THREE.MeshStandardMaterial({ color: col }));
-      cable.position.set(0.08, (y0 + y1) / 2, 0.05);
+      cable.position.set(0.05, (y0 + y1) / 2, -0.06);
       root.add(cable);
     }
   }

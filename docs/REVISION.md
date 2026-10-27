@@ -79,3 +79,43 @@ Cada iteración se revisó abriendo los 11 sistemas en Chromium (capturas autom�
 | Funcionalidad | 7,5 |
 | Amplitud | 9,0 |
 | **Media ponderada** | **7,7** |
+
+---
+
+## Iteración 3 · pulido y robustez
+
+**Revisión**
+
+- Batería completa de pruebas: 11 sistemas sin errores de consola, escenarios físicos y las 11 lecciones guiadas recorridas de principio a fin.
+- En equipos sin tarjeta gráfica potente la vista 3D podía ir lenta: no había ningún mecanismo de adaptación.
+- La caja del inversor del motor eléctrico era demasiado grande y tapaba el estátor; quedaban mallas ocultas inútiles.
+- El encuadre de la máquina de vapor dejaba mucho espacio vacío.
+- Había código muerto en el montaje del automóvil (rama `keepState` nunca usada).
+
+**Cambios aplicados**
+
+- Calidad gráfica adaptativa: si el equipo no llega a ~25 fps, se reduce la resolución y se quitan las sombras (con aviso).
+- Inversor más pequeño, translúcido y detrás del motor; eliminadas mallas ocultas.
+- Encuadre más cerrado de la máquina de vapor.
+- Limpieza del código de montaje del automóvil.
+
+| Criterio | Nota |
+|---|---|
+| Realismo físico | 7,8 |
+| Calidad 3D | 7,3 |
+| Valor educativo | 8,4 |
+| Interfaz | 7,5 |
+| Funcionalidad | 8,0 |
+| Amplitud | 9,0 |
+| **Media ponderada** | **7,9** |
+
+## Conclusión
+
+La nota pasó de 6,7 a 7,7 y luego a 7,9. Ningún criterio queda por debajo de 7 y todas las pruebas automáticas pasan, así que se considera alcanzado el 7 sólido.
+
+Puntos débiles que siguen abiertos (para futuras versiones):
+
+- Las emisiones son estimaciones de orden de magnitud, no un modelo químico.
+- El intercambio de gases es un modelo de llenado y vaciado simplificado (sin ondas en los colectores).
+- Los modelos 3D son esquemáticos (sin texturas ni detalles de fundición).
+- El cálculo del ciclo y del avance óptimo usa el hilo principal; en equipos muy lentos puede haber pequeños tirones al cambiar parámetros.

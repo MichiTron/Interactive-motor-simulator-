@@ -381,6 +381,21 @@ class App {
     if (d.rebuild && !live && inst === this.main && d.id !== 'xray') { if (this.cmp) this.placeCompare(); }
   }
 
+  // Si el equipo no llega a ~25 fps, se reduce la resolución y se quitan las sombras
+  adaptQuality(dt) {
+    if (this.qualityReduced || document.hidden) return;
+    this.frameAvg = this.frameAvg === undefined ? dt : this.frameAvg * 0.97 + dt * 0.03;
+    this.frameCount = (this.frameCount || 0) + 1;
+    if (this.frameCount > 180 && this.frameAvg > 0.04) {
+      this.qualityReduced = true;
+      this.renderer.setPixelRatio(1);
+      this.renderer.shadowMap.enabled = false;
+      this.scene.traverse((o) => { if (o.material) (Array.isArray(o.material) ? o.material : [o.material]).forEach((m) => { m.needsUpdate = true; }); });
+      this.resize();
+      this.toast('Calidad gráfica reducida para mantener la fluidez');
+    }
+  }
+
   updateKeys(dt) {
     const inst = this.main;
     if (inst.keyControl) {
@@ -401,7 +416,9 @@ class App {
 
   loop() {
     requestAnimationFrame(() => this.loop());
-    const dtReal = Math.min(0.05, this.clock.getDelta());
+    const rawDt = this.clock.getDelta();
+    const dtReal = Math.min(0.05, rawDt);
+    this.adaptQuality(rawDt);
     this.updateKeys(dtReal);
     let simDt = 0;
     if (!this.paused) simDt = dtReal * this.timeScale;

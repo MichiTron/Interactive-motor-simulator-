@@ -302,24 +302,24 @@ export const CAR = {
     const trV = new Trace(500), trR = new Trace(500);
     let t = 0, keyThrottle = false, keyBrake = false;
 
-    function setup(key, keepState = false) {
+    function setup(key) {
       pkey = key;
       pt = POWERTRAINS[key];
       const body = VEHICLE_PRESETS[pt.body];
       let unit;
-      if (pt.kind === 'ev') unit = new ElectricMotor({ ...EV_PRESET, iMax: values.iMax ?? EV_PRESET.iMax, vBat: values.vBat ?? EV_PRESET.vBat, regen: values.regen });
-      else {
+      if (pt.kind === 'ev') {
+        unit = new ElectricMotor({ ...EV_PRESET, regen: values.regen });
+        Object.assign(values, { iMax: EV_PRESET.iMax, vBat: EV_PRESET.vBat });
+      } else {
         const base = { ...ENGINE_PRESETS[pt.kind], ...pt.engine };
-        if (keepState) for (const d of engineParamDefs(pt.kind)) if (values[d.id] !== undefined) base[d.id] = values[d.id];
         unit = new CombustionEngine(base);
         unit.startCrank();
-        if (!keepState) Object.assign(values, base);
+        Object.assign(values, base);
       }
       const vp = { ...body };
       if (pt.kind === 'ev') vp.gears = [values.evRatio];
-      if (keepState) for (const k of ['mass', 'cd', 'area', 'crr', 'finalDrive']) if (values[k] !== undefined && pt.kind !== 'ev' || (k !== 'finalDrive' && values[k] !== undefined)) vp[k] = values[k];
       veh = new Vehicle(unit, { ...vp, grade: values.grade, wind: values.wind, autoShift: values.autoShift });
-      if (!keepState) for (const k of ['mass', 'cd', 'area', 'crr', 'finalDrive']) values[k] = veh.p[k];
+      for (const k of ['mass', 'cd', 'area', 'crr', 'finalDrive']) values[k] = veh.p[k];
       rebuildCar();
     }
     function rebuildCar() {

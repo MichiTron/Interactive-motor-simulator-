@@ -182,7 +182,7 @@ function buildSteam(se) {
     collar.position.y = 0.28 + 0.12 * s.ballLift;
     fireGlow.visible = s.running;
   }
-  return { group: root, update, size: new THREE.Vector3(cylEnd + 1.6, 2, 2.2), center: new THREE.Vector3((cylEnd - 0.6) / 2, 0, -0.3) };
+  return { group: root, update, size: new THREE.Vector3(cylEnd + 0.9, 1.5, 1.6), center: new THREE.Vector3((cylEnd - 0.3) / 2, 0.05, -0.25) };
 }
 
 export const STEAM = {
