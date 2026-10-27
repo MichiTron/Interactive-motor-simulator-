@@ -478,7 +478,7 @@ export const CAR = {
         if (pt.kind === 'ev') return { title: 'Coche eléctrico', text: values.brake > 0.05 && veh.pt.Pelec < 0 ? 'Frenada regenerativa: el motor funciona como generador y devuelve energía a la batería.' : 'El motor eléctrico entrega su par máximo desde parado; una única reductora basta para todo el rango de velocidades.' };
         const e = veh.pt;
         if (!e.ignition) return { title: 'Motor apagado', text: 'Pulsa Arrancar motor.' };
-        if (veh.gear === 0) return { title: 'Punto muerto', text: 'Pisa el acelerador (W): el cambio automático meterá 1ª y el embrague patinará hasta que el coche se mueva.' };
+        if (veh.gear === 0) return { title: 'Punto muerto', text: 'Pisa el acelerador (tecla W o botón Gas): el cambio automático meterá 1ª y el embrague patinará hasta que el coche se mueva.' };
         if (veh.clutch < 0.95 && veh.throttle > 0.02) return { title: 'Embrague patinando', text: 'El disco de embrague desliza para que el motor no se cale mientras el coche gana velocidad. La energía perdida se convierte en calor.' };
         if (veh.shiftTimer > 0) return { title: 'Cambiando de marcha', text: 'Se abre el embrague, se corta el gas y se engrana la siguiente relación. Al acoplar, las rpm caen.' };
         const ph = e.p.kind === 'wankel' ? null : enginePhase(e);

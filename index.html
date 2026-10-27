@@ -17,6 +17,7 @@
       <div><b>MotorLab 3D</b><span>Laboratorio de motores y propulsión</span></div>
     </div>
     <nav id="systems" aria-label="Sistemas"></nav>
+    <label class="sys-select"><span class="sr-only">Sistema</span><select id="sysSelect" aria-label="Sistema"></select></label>
   </header>
   <div class="toolbar">
     <h1 id="sysTitle">Simulador</h1>
@@ -49,8 +50,18 @@
         <p class="ltext"></p>
         <div class="lnav"><button class="btn lprev">◀ Anterior</button><button class="btn primary lnext">Siguiente ▶</button></div>
       </section>
+      <div id="pedals" class="pedals" hidden>
+        <button type="button" class="pedal brake" data-key="KeyS" aria-label="Frenar o reducir gas">▼ <span>Menos</span></button>
+        <button type="button" class="pedal gas" data-key="KeyW" aria-label="Acelerar">▲ <span>Gas</span></button>
+      </div>
       <div class="hint">Arrastra para girar · rueda para zoom · clic derecho para desplazar · pasa el ratón por las piezas</div>
     </section>
+    <nav id="mtabs" class="mtabs" aria-label="Paneles">
+      <button type="button" data-mtab="controls" aria-pressed="true">Controles</button>
+      <button type="button" data-mtab="data" aria-pressed="false">Datos</button>
+      <button type="button" data-mtab="charts" aria-pressed="false">Gráficas</button>
+      <button type="button" data-mtab="learn" aria-pressed="false">Aprende</button>
+    </nav>
     <aside class="right" aria-label="Datos y explicación">
       <div class="tabs" role="tablist">
         <button role="tab" data-tab="data" aria-selected="true">Datos</button>
@@ -70,6 +81,13 @@
       <li><b>Derecha</b> ves los datos medidos, las gráficas (diagrama p-V, curvas de par, etc.) y la pestaña <b>Aprende</b> con teoría y experimentos guiados de un clic.</li>
       <li><b>Mostrar junto a</b> coloca otro sistema al lado para compararlos funcionando a la vez.</li>
       <li><b>Velocidad</b> activa la cámara lenta: a ×1/100 puedes ver cada tiempo del motor y la chispa.</li>
+    </ul>
+    <h3>En el móvil o la tableta</h3>
+    <ul>
+      <li>Un dedo gira la vista, pellizcar acerca o aleja y dos dedos desplazan.</li>
+      <li>Toca una pieza para ver su nombre y su función.</li>
+      <li>Los botones <b>Gas</b> y <b>Menos</b> (o <b>Freno</b> en el coche) funcionan mientras los mantienes pulsados.</li>
+      <li>Abajo cambias entre Controles, Datos, Gráficas y Aprende.</li>
     </ul>
     <h3>Teclado</h3>
     <ul>

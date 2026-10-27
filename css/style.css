@@ -134,15 +134,86 @@ dialog::backdrop { background: rgba(0, 0, 0, .55); }
 dialog h2 { margin-top: 0; }
 kbd { background: #24324a; border-radius: 4px; padding: 1px 5px; font-size: 11px; border: 1px solid #34486a; }
 
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.sys-select, .mtabs, .pedals { display: none; }
+.pedals { position: absolute; left: 10px; bottom: 30px; gap: 10px; z-index: 12; }
+.pedal { width: 74px; height: 74px; border-radius: 18px; border: 2px solid rgba(255,255,255,.25); font-size: 20px; font-weight: 700; color: #fff; display: grid; place-content: center; line-height: 1.1; touch-action: none; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; cursor: pointer; }
+.pedal span { font-size: 12px; font-weight: 600; }
+.pedal.gas { background: rgba(46, 160, 90, .78); }
+.pedal.brake { background: rgba(200, 60, 60, .72); }
+.pedal.active { transform: scale(.94); filter: brightness(1.3); }
+.lesson:not([hidden]) ~ .pedals { display: none !important; }
+body.touch .pedals:not([hidden]) { display: flex; }
+
 @media (max-width: 1150px) {
   .layout { grid-template-columns: 260px minmax(0, 1fr) 320px; }
   .brand span { display: none; }
 }
+/* ---------- Diseño móvil (vertical) ---------- */
 @media (max-width: 860px) {
-  body { overflow: auto; grid-template-rows: auto auto auto; }
-  .layout { grid-template-columns: 1fr; }
-  #viewport { height: 60vh; order: -1; }
-  .left, .right { border: 0; border-top: 1px solid var(--line); max-height: none; }
-  .hud { width: 240px; height: 130px; }
-  .phase canvas { width: 56px; height: 56px; }
+  body { height: 100vh; height: 100svh; font-size: 14px; }
+  .top { padding: 6px 10px; gap: 10px; }
+  .brand span, #systems { display: none; }
+  .brand b { font-size: 14px; }
+  .sys-select { display: block; flex: 1; min-width: 0; }
+  .sys-select select { width: 100%; padding: 7px 8px; font-size: 15px; font-weight: 600; background: var(--accent); color: #1b1206; border-color: var(--accent); }
+  .toolbar { flex-wrap: nowrap; overflow-x: auto; gap: 8px; padding: 6px 10px; scrollbar-width: none; }
+  .toolbar::-webkit-scrollbar { display: none; }
+  .toolbar h1 { display: none; }
+  .toolbar > * { flex: none; }
+  .toolbar label { font-size: 12px; }
+  .layout { grid-template-columns: minmax(0, 1fr); grid-template-rows: 47svh auto minmax(0, 1fr); }
+  #viewport { grid-row: 1; }
+  .mtabs { display: flex; grid-row: 2; background: var(--panel); border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+  .mtabs button { flex: 1; background: none; border: 0; border-bottom: 2px solid transparent; padding: 10px 4px; font-weight: 600; color: var(--muted); }
+  .mtabs button[aria-pressed="true"] { color: #fff; border-bottom-color: var(--accent); }
+  .left, .right { grid-row: 3; border: 0; min-height: 0; }
+  .right .tabs { display: none; }
+  body:not([data-mtab="controls"]) .left { display: none; }
+  body[data-mtab="controls"] .right { display: none; }
+  .phase { left: 8px; top: 8px; right: 8px; max-width: none; padding: 6px 10px 6px 6px; gap: 8px; }
+  .phase canvas { width: 50px; height: 50px; }
+  .ptitle { font-size: 13px; }
+  .ptext { font-size: 12px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .pnote { display: none; }
+  .hud { right: 6px; bottom: 6px; width: 200px; height: 112px; }
+  .hint { display: none; }
+  .pedals { bottom: 8px; left: 8px; }
+  .pedal { width: 62px; height: 62px; }
+  .lesson { left: 8px; right: 8px; bottom: 8px; width: auto; padding: 8px 12px 10px; }
+  .ltext { font-size: 12.5px; margin-bottom: 8px; }
+  .tooltip { max-width: calc(100% - 20px); }
+  .help:hover::after, .help:focus::after { position: fixed; left: 12px; right: 12px; top: auto; bottom: 12px; width: auto; transform: none; }
+  .prow input[type=range] { height: 28px; }
+  .prow.toggle label { padding: 4px 0; }
+  .btn { padding: 7px 11px; }
+  dialog { max-width: calc(100vw - 24px); padding: 14px 16px; }
+}
+
+/* ---------- Móvil o tableta en horizontal ---------- */
+@media (max-height: 520px) and (orientation: landscape) and (pointer: coarse) {
+  body { height: 100vh; height: 100svh; font-size: 13px; }
+  .top { padding: 4px 10px; }
+  .brand span, #systems { display: none; }
+  .sys-select { display: block; flex: 1; max-width: 320px; }
+  .sys-select select { width: 100%; padding: 5px 8px; font-weight: 600; background: var(--accent); color: #1b1206; border-color: var(--accent); }
+  .toolbar { flex-wrap: nowrap; overflow-x: auto; padding: 4px 10px; gap: 8px; scrollbar-width: none; }
+  .toolbar h1 { display: none; }
+  .toolbar > * { flex: none; }
+  .layout { grid-template-columns: minmax(0, 1fr) 330px; grid-template-rows: auto minmax(0, 1fr); }
+  #viewport { grid-row: 1 / span 2; grid-column: 1; }
+  .mtabs { display: flex; grid-row: 1; grid-column: 2; background: var(--panel); border-left: 1px solid var(--line); }
+  .mtabs button { flex: 1; background: none; border: 0; border-bottom: 2px solid transparent; padding: 7px 2px; font-weight: 600; color: var(--muted); font-size: 12px; }
+  .mtabs button[aria-pressed="true"] { color: #fff; border-bottom-color: var(--accent); }
+  .left, .right { grid-row: 2; grid-column: 2; border-left: 1px solid var(--line); border-right: 0; min-height: 0; }
+  .right .tabs { display: none; }
+  body:not([data-mtab="controls"]) .left { display: none; }
+  body[data-mtab="controls"] .right { display: none; }
+  .phase { max-width: calc(100% - 16px); left: 8px; top: 8px; }
+  .phase canvas { width: 48px; height: 48px; }
+  .ptext { font-size: 12px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .pnote, .hint { display: none; }
+  .hud { width: 190px; height: 106px; right: 6px; bottom: 6px; }
+  .pedals { bottom: 8px; left: 8px; }
+  .pedal { width: 60px; height: 60px; }
 }

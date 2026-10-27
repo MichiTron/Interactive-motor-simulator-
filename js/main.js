@@ -17,7 +17,10 @@ class App {
   constructor() {
     this.viewport = document.getElementById('viewport');
     this.renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
-    this.renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.75));
+    this.touch = window.matchMedia('(pointer: coarse)').matches;
+    document.body.classList.toggle('touch', this.touch);
+    document.body.dataset.mtab = 'controls';
+    this.renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, this.touch ? 1.5 : 1.75));
     this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
     this.renderer.toneMappingExposure = 1.05;
     this.renderer.shadowMap.enabled = true;
@@ -35,7 +38,7 @@ class App {
     this.scene.add(hemi);
     this.sun = new THREE.DirectionalLight(0xffffff, 1.6);
     this.sun.castShadow = true;
-    this.sun.shadow.mapSize.set(2048, 2048);
+    this.sun.shadow.mapSize.set(this.touch ? 1024 : 2048, this.touch ? 1024 : 2048);
     this.sun.shadow.bias = -0.0004;
     this.scene.add(this.sun, this.sun.target);
     const floorMat = new THREE.MeshStandardMaterial({ color: 0x1a2332, roughness: 0.95, metalness: 0 });
@@ -84,6 +87,16 @@ class App {
       if (s.category !== lastCat) { tabs.append(el('span', { class: 'cat' }, s.category)); lastCat = s.category; }
       tabs.append(el('button', { class: 'sys', 'data-id': s.id, title: s.desc, onclick: () => this.load(s.id) }, s.short));
     });
+    // selector compacto para pantallas pequeñas
+    const sel = document.getElementById('sysSelect');
+    const groups = {};
+    SYSTEMS.forEach((s) => {
+      if (!groups[s.category]) { groups[s.category] = el('optgroup', { label: s.category }); sel.append(groups[s.category]); }
+      groups[s.category].append(el('option', { value: s.id }, s.short));
+    });
+    sel.addEventListener('change', () => this.load(sel.value));
+    this.sysSelect = sel;
+    document.querySelectorAll('#mtabs [data-mtab]').forEach((b) => b.addEventListener('click', () => this.showMobileTab(b.dataset.mtab)));
     const cmp = document.getElementById('compare');
     cmp.append(el('option', { value: '' }, 'Nada'));
     SYSTEMS.forEach((s) => cmp.append(el('option', { value: s.id }, s.short)));
@@ -104,6 +117,14 @@ class App {
     L.querySelector('.lnext').addEventListener('click', () => (this.lesson.i + 1 < this.lesson.steps.length ? this.showStep(this.lesson.i + 1) : this.endLesson()));
     document.querySelectorAll('[data-focus]').forEach((b) => b.addEventListener('click', () => { this.focus = b.dataset.focus; this.refreshSide(); }));
     document.querySelectorAll('.tabs [data-tab]').forEach((b) => b.addEventListener('click', () => this.showTab(b.dataset.tab)));
+  }
+
+  // Pestañas inferiores del diseño móvil: Controles o una pestaña del panel derecho
+  showMobileTab(id) {
+    document.body.dataset.mtab = id;
+    document.querySelectorAll('#mtabs [data-mtab]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.mtab === id)));
+    if (id === 'controls') this.tab = 'controls';
+    else this.showTab(id);
   }
 
   showTab(id) {
@@ -176,7 +197,30 @@ class App {
     window.addEventListener('blur', () => this.keys.clear());
     const cv = this.renderer.domElement;
     cv.addEventListener('pointermove', (e) => { const r = cv.getBoundingClientRect(); this.pointer = { x: (e.clientX - r.left) / r.width * 2 - 1, y: -(e.clientY - r.top) / r.height * 2 + 1, cx: e.clientX - r.left, cy: e.clientY - r.top }; });
-    cv.addEventListener('pointerleave', () => { this.pointer = null; this.tooltip.hidden = true; });
+    cv.addEventListener('pointerleave', () => { if (!this.tapHold) { this.pointer = null; this.tooltip.hidden = true; } });
+    // Táctil: un toque breve identifica la pieza; arrastrar solo mueve la cámara
+    cv.addEventListener('pointerdown', (e) => { this.down = { x: e.clientX, y: e.clientY, t: performance.now() }; });
+    cv.addEventListener('pointerup', (e) => {
+      if (e.pointerType === 'mouse' || !this.down) return;
+      const moved = Math.hypot(e.clientX - this.down.x, e.clientY - this.down.y);
+      clearTimeout(this.tapT);
+      if (moved < 10 && performance.now() - this.down.t < 450) {
+        const r = cv.getBoundingClientRect();
+        this.pointer = { x: (e.clientX - r.left) / r.width * 2 - 1, y: -(e.clientY - r.top) / r.height * 2 + 1, cx: e.clientX - r.left, cy: e.clientY - r.top };
+        this.tapHold = true;
+        this.ttFrame = 3;
+        this.tapT = setTimeout(() => { this.tapHold = false; this.pointer = null; this.tooltip.hidden = true; }, 4000);
+      } else { this.tapHold = false; this.pointer = null; this.tooltip.hidden = true; }
+    });
+    // Pedales táctiles: equivalen a mantener pulsadas W o S
+    document.querySelectorAll('#pedals .pedal').forEach((p) => {
+      const on = (e) => { e.preventDefault(); p.setPointerCapture?.(e.pointerId); this.keys.add(p.dataset.key); p.classList.add('active'); };
+      const off = () => { this.keys.delete(p.dataset.key); p.classList.remove('active'); };
+      p.addEventListener('pointerdown', on);
+      ['pointerup', 'pointercancel', 'lostpointercapture'].forEach((ev) => p.addEventListener(ev, off));
+      p.addEventListener('contextmenu', (e) => e.preventDefault());
+    });
+    if (this.touch) document.querySelector('.hint').textContent = 'Un dedo gira · pellizca para zoom · dos dedos desplazan · toca una pieza para identificarla';
   }
 
   resize() {
@@ -204,6 +248,10 @@ class App {
     document.getElementById('lessonBtn').disabled = !LESSONS[id];
     this.focus = 'main';
     document.querySelectorAll('.sys').forEach((b) => b.setAttribute('aria-current', String(b.dataset.id === id)));
+    this.sysSelect.value = id;
+    const pedals = document.getElementById('pedals');
+    pedals.hidden = this.main.values.throttle === undefined;
+    pedals.querySelector('.brake span').textContent = this.main.keyControl ? 'Freno' : 'Menos';
     document.getElementById('sysTitle').textContent = this.main.def.name;
     if (this.cmp) this.placeCompare();
     this.refreshSide();
@@ -461,7 +509,8 @@ class App {
     this.tooltip.hidden = false;
     this.tooltip.innerHTML = `<b>${info.name}</b>${info.desc ? `<span>${info.desc}</span>` : ''}`;
     const vw = this.viewport.clientWidth;
-    const x = Math.min(this.pointer.cx + 16, vw - 300);
+    const tw = this.tooltip.offsetWidth || 290;
+    const x = Math.max(8, Math.min(this.pointer.cx + 16, vw - tw - 8));
     this.tooltip.style.transform = `translate(${x}px, ${this.pointer.cy + 14}px)`;
   }
 

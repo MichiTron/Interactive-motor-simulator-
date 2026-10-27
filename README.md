@@ -13,6 +13,10 @@ El lanzador abre el simulador en una ventana tipo aplicación de Chrome o Edge. 
 
 > Abrir `index.html` con doble clic no funciona porque los navegadores bloquean los módulos JavaScript en `file://`. Usa siempre el lanzador (o cualquier servidor estático).
 
+### En el móvil o la tableta
+
+La interfaz se adapta a pantallas pequeñas. En vertical, el 3D queda arriba y abajo hay pestañas para Controles, Datos, Gráficas y Aprende. En horizontal, el 3D va a la izquierda y el panel a la derecha. Un dedo gira la vista, pellizcar hace zoom y tocar una pieza muestra qué es. Los botones **Gas** y **Menos** (o **Freno** en el coche) sustituyen a las teclas W y S. Para abrirlo en el teléfono hay que servir la carpeta desde un servidor web.
+
 ### Crear un ejecutable (opcional)
 
 ```
